@@ -1,0 +1,101 @@
+<html>
+<head>
+	<title>gatherTweets</title>
+	<script type="text/javascript" src="http://code.jquery.com/jquery-1.6.4.min.js"></script>
+</head>
+
+<body>
+<h3>Gather Tweets</h3>
+<p><span id="count"></span> tweets about <span id="term"></span> are stored in couchDB.</p>
+
+
+<script>
+var gt ={
+	//Define the term, interval in seconds, couchdb database
+	term: "nodeconf",
+	interval: 600*1000, //seconds 10 minutes
+	dbUrl: "/tweets/",
+	next_page: "",
+    refresh_url: "",
+
+	init: function(){
+		//Every x seconds (maybe minutes)
+		gt.getTweets(gt.term);
+		setInterval('gt.getTweets(gt.term)', gt.interval);
+		     //GET twitter search for term
+		     //Store next info from twitter (twitter state)
+		     //If result.length>0
+		          //For each result
+		               //Put result into couchdb database
+		//Callback execute providing an array of record indexes even if null
+		
+		
+	},
+
+	getTweets: function (term){
+	    var url="http://search.twitter.com/search.json?callback=?&";
+	    if (gt.refresh_url.length<1){
+		  url=url+"q="+escape(term);
+	    }else{
+		  url=url+gt.refresh_url.substring(1);
+		}
+	    $.getJSON(url, function(json) {
+		   //get ready for next getTweets
+		   gt.next_page=json.next_page;
+		   gt.refresh_url=json.refresh_url;
+		   //alert(gt.refresh_url);
+		   gt.saveResults(json.results);
+		 });
+	},
+	
+	saveResults: function (results){
+		for (var i=0; i<results.length; i++){
+			//========================= code to save result in couchdb database
+			//alert('@saveResults');
+			$.ajax({
+				type: 'POST',
+				dataType: 'json',
+				contentType: "application/json",
+				data: JSON.stringify(results[i]),
+				url: gt.dbUrl,
+				success: function(sdata){
+				    $("#count").html(i);	
+					//$("#replicatorEventUL").listview('refresh');
+				}
+			});
+		}
+	},
+
+/*	
+{
+    "created_at": "Sat, 17 Mar 2012 04:25:01 +0000",
+    "from_user": "jkresner",
+    "from_user_id": 21989578,
+    "from_user_id_str": "21989578",
+    "from_user_name": "Jonathon Kresner",
+    "geo": null,
+    "id": 180872340526206980,
+    "id_str": "180872340526206976",
+    "iso_language_code": "en",
+    "metadata": {
+        "result_type": "recent"
+    },
+    "profile_image_url": "http://a0.twimg.com/profile_images/1780680945/208758_550641285474_218300862_32065106_5447186_n_normal.jpg",
+    "profile_image_url_https": "https://si0.twimg.com/profile_images/1780680945/208758_550641285474_218300862_32065106_5447186_n_normal.jpg",
+    "source": "&lt;a href=&quot;http://twitter.com/tweetbutton&quot; rel=&quot;nofollow&quot;&gt;Tweet Button&lt;/a&gt;",
+    "text": "RT @Elance: Congratulations to Cerealize: 2012 StartupBus Winner - @Elance Blog -  http://t.co/0AhEFKct",
+    "to_user": null,
+    "to_user_id": null,
+    "to_user_id_str": null,
+    "to_user_name": null
+}
+	
+	
+*/	
+	
+	dummy: ""
+}
+gt.init();
+</script>
+</body>
+</html>

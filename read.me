@@ -1,0 +1,39 @@
+gatherTweets (March 2012)
+
+This project gathers tweets and stores them in a database. This can be useful personally or as part of a larger project. For example, you may want to store all tweets that contain your username. 
+
+The goal of this project is to create a node.js module to store tweets into either couchdb or mongo. The first phase does of proof of concept as a couchapp and stores the tweets in Couchdb.
+
+FIRST PHASE (couchapp)
+
+This first version of gatherTweets is a couchapp that runs in a browser. Here is how to make it work for you.
+
+1. Install couchdb on your local machine.
+2. Open Futon (http://127.0.0.1/_utils)
+3. Create and save a database of any name. For example "tweets".
+4. Create and save a document. For example "start".
+5. Upload into that document the couchapp.html file of gatherTweets.
+6. Click on the index.html file displayed in Futon: http://127.0.0.1:5984/tweets/start/couchapp.html
+
+By default every 10 minutes the app will search twitter for the term "nodeconf" and store it in the "tweets" database.
+
+You can customize the app to search on a different term, use a different interval or save the tweets into a different database. These are variables located at the top of the JavaScript code.
+
+   term: "nodeconf",
+   interval: 600*1000, //seconds 10 minutes
+   dbUrl: "/tweets/",
+
+As long as you keep couchapp.hmtl open as a tab in your browser, it will continue to look for additional tweets.
+
+USEFUL MAP/REDUCE 
+
+I found it useful to create a simple Map/Reduce function to display just the tweet text. This helped me verify that the correct tweets were being gathered. I used this in the Temporary View.
+
+function(doc) {
+  emit(null, doc.text);
+}
+
+
+IN PROGRESS
+
+Next phase is to get the code working for a node.js module. 
